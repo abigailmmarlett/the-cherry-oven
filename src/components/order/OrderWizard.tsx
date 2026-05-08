@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import emailjs from '@emailjs/browser'
 import CookieSVG, { type CookieVariant } from '../CookieSVG'
@@ -193,9 +193,9 @@ function StepFlavors({
 
 // ---------- Step 3: Details ----------
 function StepDetails({
-  details, setDetails, next, back, box,
+  details, setDetails, next, back,
 }: {
-  details: Details; setDetails: React.Dispatch<React.SetStateAction<Details>>; next: () => void; back: () => void; box: Box
+  details: Details; setDetails: React.Dispatch<React.SetStateAction<Details>>; next: () => void; back: () => void
 }) {
   const update = (k: keyof Details, v: string) => setDetails(d => ({ ...d, [k]: v }))
   const canProceed = details.name && details.email && details.phone && details.fulfillment && details.window
@@ -277,7 +277,7 @@ function StepDetails({
           <option>Instagram</option>
           <option>A friend</option>
           <option>Local market</option>
-          <option>Walked past the cherry door</option>
+          <option>Saw it in the neighborhood</option>
           <option>Other</option>
         </select>
       </div>
@@ -404,7 +404,7 @@ function Confirmation({ details, reset }: { details: Details; reset: () => void 
         </span>!
       </h2>
       <p style={{ maxWidth: 480, margin: '16px auto 0' }}>
-        Confirmation sent to <strong>{details.email}</strong>. Keeley will reply within 24 hrs with payment instructions.
+        Your order is in! Keeley will reach out to <strong>{details.email}</strong> within 24 hrs with payment instructions (Venmo or Zelle).
       </p>
       <div className="step-actions" style={{ justifyContent: 'center', marginTop: 32 }}>
         <Link to="/" className="btn btn-ghost">Back to home</Link>
@@ -424,7 +424,10 @@ export default function OrderWizard() {
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
-  useEffect(() => { setFlavors({}) }, [box?.id])
+  const handleSetBox = (b: Box) => {
+    setBox(b)
+    setFlavors({})
+  }
 
   const reset = () => {
     setStep(0); setBox(null); setFlavors({})
@@ -478,9 +481,9 @@ export default function OrderWizard() {
   return (
     <div className="wizard">
       <StepIndicator current={step} />
-      {step === 0 && <StepBox box={box} setBox={setBox} next={() => setStep(1)} />}
+      {step === 0 && <StepBox box={box} setBox={handleSetBox} next={() => setStep(1)} />}
       {step === 1 && box && <StepFlavors box={box} flavors={flavors} setFlavors={setFlavors} next={() => setStep(2)} back={() => setStep(0)} />}
-      {step === 2 && box && <StepDetails box={box} details={details} setDetails={setDetails} next={() => setStep(3)} back={() => setStep(1)} />}
+      {step === 2 && box && <StepDetails details={details} setDetails={setDetails} next={() => setStep(3)} back={() => setStep(1)} />}
       {step === 3 && box && <StepReview box={box} flavors={flavors} details={details} back={() => setStep(2)} submit={handleSubmit} submitting={submitting} submitError={submitError} />}
     </div>
   )
